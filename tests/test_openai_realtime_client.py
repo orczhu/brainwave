@@ -34,10 +34,15 @@ async def test_connect_success(client):
         expected_update = {
             "type": "session.update",
             "session": {
-                "modalities": ["text"],
-                "input_audio_format": "pcm16",
-                "input_audio_transcription": {"model": "gpt-4o-transcribe"},
-                "turn_detection": None,
+                "type": "realtime",
+                "output_modalities": ["text"],
+                "audio": {
+                    "input": {
+                        "format": {"type": "audio/pcm", "rate": 24000},
+                        "transcription": {"model": "gpt-4o-transcribe"},
+                        "turn_detection": None,
+                    }
+                },
                 "instructions": PROMPTS['paraphrase-gpt-realtime-enhanced']
             }
         }
@@ -96,7 +101,7 @@ async def test_start_response(client):
     expected_message = {
         "type": "response.create",
         "response": {
-            "modalities": ["text"],
+            "output_modalities": ["text"],
             "instructions": test_instructions
         }
     }

@@ -25,7 +25,6 @@ class OpenAIRealtimeAudioTextClient(RealtimeClientBase):
         """Connect to OpenAI's realtime API and configure the session"""
         headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "OpenAI-Beta": "realtime=v1",
         }
 
         # Support both websockets param names across versions: extra_headers (older) and additional_headers (newer)
@@ -48,24 +47,23 @@ class OpenAIRealtimeAudioTextClient(RealtimeClientBase):
             self.session_id = response_data["session"]["id"]
             logger.info(f"Session created with ID: {self.session_id}")
             
+            # Disable server-side VAD; rely on manual buffering/commits
             session_config_payload = {
-                "modalities": modalities,
-                "input_audio_format": "pcm16",
+                "type": "realtime",
+                "output_modalities": modalities,
+                "audio": {
+                    "input": {
+                        "format": {"type": "audio/pcm", "rate": 24000},
+                        "transcription": {"model": "gpt-4o-transcribe"},
+                        "turn_detection": None,
+                    }
+                },
             }
 
             if session_mode == "transcription":
-                session_config_payload["input_audio_transcription"] = {
-                    "model": "gpt-4o-transcribe"
-                }
-                session_config_payload["turn_detection"] = None
                 # No instructions for transcription mode
                 logger.info("Configuring session for transcription mode.")
             else:  # Default to conversation mode
-                # Disable server-side VAD; rely on manual buffering/commits
-                session_config_payload["input_audio_transcription"] = {
-                    "model": "gpt-4o-transcribe"
-                }
-                session_config_payload["turn_detection"] = None
                 session_config_payload["instructions"] = PROMPTS['paraphrase-gpt-realtime-enhanced']
                 logger.info("Configuring session for conversation mode with transcription and no turn detection.")
 
@@ -154,7 +152,7 @@ class OpenAIRealtimeAudioTextClient(RealtimeClientBase):
             await self.ws.send(json.dumps({
                 "type": "response.create",
                 "response": {
-                    "modalities": ["text"],
+                    "output_modalities": ["text"],
                     "instructions": instructions
                 }
             }))

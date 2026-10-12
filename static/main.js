@@ -326,7 +326,6 @@ function initializeWebSocket() {
             case 'text':
                 if (data.isNewResponse) {
                     transcript.value = data.content;
-                    stopTimer();
                 } else {
                     transcript.value += data.content;
                 }
@@ -595,7 +594,7 @@ async function startRecording() {
 
         isRecording = true;
         const modelSelect = document.getElementById('modelSelect');
-        const selectedModel = modelSelect ? modelSelect.value : 'gpt-realtime-mini-2025-12-15';
+        const selectedModel = modelSelect ? modelSelect.value : 'gpt-realtime';
         
         // Determine provider and model based on selection
         let provider = 'openai';
@@ -733,7 +732,7 @@ async function replayLastRecording() {
         
         // Send start_recording message
         const modelSelect = document.getElementById('modelSelect');
-        const selectedModel = modelSelect ? modelSelect.value : 'gpt-realtime-mini-2025-12-15';
+        const selectedModel = modelSelect ? modelSelect.value : 'gpt-realtime';
         
         // Determine provider and model based on selection
         let provider = 'openai';

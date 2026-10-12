@@ -320,6 +320,8 @@ async def websocket_endpoint(websocket: WebSocket):
             client.register_handler("response.done", lambda data: handle_response_done(data))
             client.register_handler("error", lambda data: handle_error(data))
             client.register_handler("response.text.delta", lambda data: handle_text_delta(data))
+            # OpenAI GA realtime API uses response.output_text.delta
+            client.register_handler("response.output_text.delta", lambda data: handle_text_delta(data))
             # x.ai uses response.output_audio_transcript.delta instead of response.text.delta
             client.register_handler("response.output_audio_transcript.delta", lambda data: handle_text_delta(data))
             client.register_handler("response.created", lambda data: handle_response_created(data))
@@ -818,4 +820,4 @@ async def transcribe_gemini_sse(request: Request, file: UploadFile = File(...)):
     return StreamingResponse(sse_event_generator_for_bytes(audio_bytes, file.filename), media_type="text/event-stream")
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=3005)
+    uvicorn.run(app, host="127.0.0.1", port=3005)
